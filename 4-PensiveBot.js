@@ -240,6 +240,48 @@ class RepeaterDetector{
 
 }
 
+class WaterDowser {
+  constructor(){
+    this.tieRoundsIndices =[];
+    this.itsEmily = false;
+    this.notCalledOutEmily = true;
+  }
+
+  findTieRounds(gamestate){
+      let i=0;
+      gamestate.rounds.forEach( round => {
+        if (round.p1 === round.p2){
+          this.tieRoundsIndices.push(i);
+        }
+        i += 1;
+    })
+  }
+
+  isItEmily(gamestate){
+        let length = this.tieRoundsIndices.length;
+        let numberElapsedRounds = gamestate.rounds.length;
+        if (length < 3 ){
+        } else if ( numberElapsedRounds > 6 && (false) ) {
+            let firstTieResponse = gamestate.rounds[this.tieRoundsIndices[1]].p2;
+            let secondTieResponse = gamestate.rounds[this.tieRoundsIndices[2]].p2;
+            let thirdTieResponse = gamestate.rounds[this.tieRoundsIndices[3]].p2;
+
+            if (firstTieResponse === 'W' && secondTieResponse === 'W' && thirdTieResponse === 'W'){
+              this.itsEmily = true;
+            }
+          }
+        }
+
+   doesSheKnow(gamestate){
+     let length = this.tieRoundsIndices.length;
+     if (this.itsEmily){
+       if (lastResponseTie = gamestate.rounds[this.tieRoundsIndices[length-2]].p2 !== 'W'){
+         this.notCalledOutEmily = false;
+       }
+     }
+   }
+}
+
 
 class Bot {
     makeMove(gamestate) {
@@ -247,13 +289,18 @@ class Bot {
           theirCounter = new TheirCounter(),
           points = new PointsCounter(),
           roundPoints = new RoundPoints(),
-          repeaterDetector = new RepeaterDetector();
+          repeaterDetector = new RepeaterDetector(),
+          waterDowser = new WaterDowser();
 
       myCounter.countMoves(gamestate);
       theirCounter.countMoves(gamestate);
       points.countPoints(gamestate);
       roundPoints.calculateRoundPoints(gamestate);
       repeaterDetector.analyseLastFewRounds(gamestate);
+      waterDowser.findTieRounds(gamestate);
+      waterDowser.isItEmily(gamestate);
+      waterDowser.doesSheKnow(gamestate);
+
 
       let rand = Math.random();
       let move = '';
@@ -269,29 +316,32 @@ class Bot {
         throwWaterBalloon = false;
       }
 
-      let notDoingEmilysTrick = true;
-
       if (repeaterDetector.repeating){
         repeaterDetector.responseMoveDecider();
         move = repeaterDetector.responseMove;
         return move;
-      }
-
-      if (roundPoints.roundPoints > 1 && throwDynamite && (myDynamitesLeft >=20)){
-        move = "D"
-      } else if (points.p2Points > 970 && throwDynamite){
-        move = "D"
-      } else if (rand <= 0.1 && throwDynamite && myDynamitesLeft > 20){
-        move = "D"
-      } else if (rand > 0.1 && rand <= 0.4){
-        move = "R"
-      } else if (rand > 0.4 && rand <= 0.7){
-        move = "P"
-      } else if (rand > 0.7 && rand <= 1){
-        move = "S"
       } else {
-        move = "P"
-      }
+
+            if (roundPoints.roundPoints > 2 && !waterDowser.itsEmily && throwWaterBalloon ){
+              move = "W"
+            }else if (roundPoints.roundPoints > 2 && throwDynamite){
+              move = "D"
+            } else if (roundPoints.roundPoints > 1 && throwDynamite && (myDynamitesLeft >=20) && !waterDowser.itsEmily && waterDowser.notCalledOutEmily){
+              move = "D"
+            } else if (points.p2Points > 970 && throwDynamite){
+              move = "D"
+            } else if (rand <= 0.1 && throwDynamite && myDynamitesLeft > 20){
+              move = "D"
+            } else if (rand > 0.1 && rand <= 0.4){
+              move = "R"
+            } else if (rand > 0.4 && rand <= 0.7){
+              move = "P"
+            } else if (rand > 0.7 && rand <= 1){
+              move = "S"
+            } else {
+              move = "P"
+            }
+          }
 
       return move;
     }
