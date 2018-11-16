@@ -85,11 +85,84 @@ class RepeaterDetector{
 
 }
 
-repeaterDetector = new RepeaterDetector();
+// repeaterDetector = new RepeaterDetector();
+//
+// repeaterDetector.analyseLastFewRounds(gamestate);
 
-repeaterDetector.analyseLastFewRounds(gamestate);
+let repeating = false,
+    repeatMove = '',
+    responseMove = '';
+
+function analyseLastFewRounds(gamestate){
+  let length = gamestate.rounds.length
+  lastRounds = [];
+
+  for (let i=3; i>0; i--){
+    lastRounds.push(gamestate.rounds[length-i].p2)
+    console.log(gamestate.rounds[length-i].p2)
+  }
+
+  let unique = lastRounds.filter( function (value, index, self) {
+    return self.indexOf(value) === index;
+  } );
+
+  console.log(unique.length)
+
+  if (unique.length === 1){
+    repeating = true;
+    repeatedMove = unique[0];
+  }
+
+}
+
+function responseMoveDecider(){
+  switch(repeatMove){
+    case 'R':
+      responseMove = 'P'
+      break
+
+    case 'P':
+      responseMove = 'S';
+      break;
+
+    case 'S':
+      responseMove = 'R';
+      break;
+
+    case 'D':
+      responseMove = 'W';
+      break;
+
+    case 'W':
+      responseMove = randomMoveSelect();
+      break;
+
+    default:
+      responseMove = randomMoveSelect();
+      break;
+  }
+}
+
+function randomMoveSelect(){
+    let rand = Math.random();
+    let move = '';
 
 
+    if (rand <= 0.3){
+      move = "R"
+    } else if (rand > 0.3 && rand <= 0.6){
+      move = "P"
+    } else if (rand > 0.6 && rand <= 1){
+      move = "S"
+    }
+
+    return move
+}
+
+analyseLastFewRounds(gamestate)
+responseMoveDecider()
+
+console.log(responseMove)
 
 
 // function randomMoveSelect(){

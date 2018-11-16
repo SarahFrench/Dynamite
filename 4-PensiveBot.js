@@ -162,9 +162,6 @@ class RoundPoints {
       })
     }
 }
-
-
-
 class RepeaterDetector{
   constructor(){
     this.lastRounds = [];
@@ -179,21 +176,21 @@ class RepeaterDetector{
     let length = gamestate.rounds.length,
         i = 3;
 
-    this.repeating = false;
-    this.repeatedMove = '';
+    if (length > i){
 
-    for (i; i>0; i--){
-      this.lastRounds.push(gamestate.rounds[length-i])
-    }
+        for (let i=3; i>0; i--){
+          this.lastRounds.push(gamestate.rounds[length-i].p2)
+        }
 
-    let unique = this.lastRounds.filter( function (value, index, self) {
-      return self.indexOf(value) === index;
-    } );
+        let unique = this.lastRounds.filter( function (value, index, self) {
+          return self.indexOf(value) === index;
+        } );
 
-    if (unique.length === 1){
-      this.repeating = true;
-      this.repeatedMove = unique[0];
-    }
+        if (unique.length === 1){
+          this.repeating = true;
+          this.repeatMove = unique[0];
+        }
+      }
 
   }
 
@@ -210,7 +207,7 @@ class RepeaterDetector{
         move = "S"
       }
 
-      return move
+      this.responseMove = move;
   }
 
   responseMoveDecider(){
@@ -232,11 +229,11 @@ class RepeaterDetector{
         break;
 
       case 'W':
-        this.responseMove = this.randomMoveSelect();
+        this.randomMoveSelect();
         break;
 
       default:
-        this.responseMove = this.randomMoveSelect();
+        this.randomMoveSelect();
         break;
     }
   }
